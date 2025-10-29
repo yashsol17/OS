@@ -1,0 +1,85 @@
+// parent.c
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/wait.h>
+
+void sortAscending(int arr[], int n) {
+    for (int i = 0; i < n - 1; ++i)
+        for (int j = 0; j < n - i - 1; ++j)
+            if (arr[j] > arr[j + 1]) {
+                int temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+}
+
+int main() {
+    int n;
+    printf("Enter number of elements: ");
+    scanf("%d", &n);
+
+    int* arr = (int*)malloc(n * sizeof(int));
+    for (int i = 0; i < n; ++i) {
+        printf("Enter element %d: ", i + 1);
+        scanf("%d", &arr[i]);
+    }
+    sortAscending(arr, n);
+    printf("[Parent] Sorted array (ascending): ");
+    for (int i = 0; i < n; ++i)
+        printf("%d ", arr[i]);
+    printf("\n");
+
+    pid_t pid = fork();
+
+    if (pid == 0) {
+        char* args[n + 2]; // +1 for program name, +1 for NULL
+        args[0] = "./child";
+
+        for (int i = 0; i < n; ++i) 
+            char* numStr = (char*)malloc(10 * sizeof(char));
+            sprintf(numStr, "%d", arr[i]);
+            args[i + 1] = numStr;
+        }
+        args[n + 1] = NULL;
+
+        execve("./child", args, NULL);
+        perror("execve failed");
+    }
+    else if (pid > 0) {
+        wait(NULL);
+        printf("[Parent] Child process completed.\n");
+    }
+    else {
+        printf("Fork failed!\n");
+    }
+
+    free(arr);
+    return 0;
+}
+
+
+// child.c
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(int argc, char* argv[]) {
+    printf("[Child] Received sorted array from parent.\n");
+
+    int n = argc - 1;
+    int* arr = (int*)malloc(n * sizeof(int));
+
+    for (int i = 0; i < n; ++i) {
+        arr[i] = atoi(argv[i + 1]);
+    }
+
+    printf("[Child] Array in reverse order: ");
+    for (int i = n - 1; i >= 0; --i) {
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
+
+    free(arr);
+    return 0;
+}
