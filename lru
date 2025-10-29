@@ -1,0 +1,70 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+int findPage(int frames[], int size, int page) {
+    for (int i = 0; i < size; i++) {
+        if (frames[i] == page)
+            return i; 
+    }
+    return -1; 
+}
+
+int calculatePageFaults(int pages[], int n, int capacity) {
+    int *frames = (int *)malloc(capacity * sizeof(int));  
+    int *lastUsed = (int *)malloc(capacity * sizeof(int)); 
+    int pageFaults = 0;
+    int size = 0;
+
+    for (int i = 0; i < n; i++) {
+        int page = pages[i];
+        int pos = findPage(frames, size, page);
+
+        if (pos == -1) {
+            if (size < capacity) {
+                frames[size] = page;
+                lastUsed[size] = i;
+                size++;
+            } else {
+                int lruIndex = 0;
+                int minUse = INT_MAX;
+                for (int j = 0; j < capacity; j++) {
+                    if (lastUsed[j] < minUse) {
+                        minUse = lastUsed[j];
+                        lruIndex = j;
+                    }
+                }
+                frames[lruIndex] = page;
+                lastUsed[lruIndex] = i;
+            }
+            pageFaults++;
+        } else {
+            lastUsed[pos] = i;
+        }
+    }
+
+    free(frames);
+    free(lastUsed);
+    return pageFaults;
+}
+
+int main() {
+    int n, capacity;
+    printf("Enter no of pages: ");
+    scanf("%d", &n);
+
+    int *pages = (int *)malloc(n * sizeof(int));
+    printf("Enter pages: ");
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &pages[i]);
+    }
+
+    printf("Enter capacity: ");
+    scanf("%d", &capacity);
+
+    int faults = calculatePageFaults(pages, n, capacity);
+    printf("Total page faults: %d\n", faults);
+
+    free(pages);
+    return 0;
+}
