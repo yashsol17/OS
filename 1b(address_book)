@@ -1,0 +1,58 @@
+file="address_book.txt"
+
+while :
+do
+  echo "-----------Address book-------------"
+  echo "Menu:"
+  echo "a) Create address book"
+  echo "b) View address book"
+  echo "c) Insert record"
+  echo "d) Delete record"
+  echo "e) Modify record"
+  echo "f) Exit"
+  echo -n "Choose option: "
+  read choice
+
+  case "$choice" in
+    a)
+      > "$file"
+      echo "Address book created."
+      ;;
+    b)
+      if [ -s "$file" ]; then
+        nl "$file"
+      else
+        echo "Address book is empty."
+      fi
+      ;;
+    c)
+      echo -n "Enter name, phone, address: "
+      read record
+      echo "$record" >> "$file"
+      echo "Record added."
+      ;;
+    d)
+      nl "$file"
+      echo -n "Enter record number to delete: "
+      read num
+      grep -v "^$num" "$file" | sed "${num}d" > temp && mv temp "$file"
+      echo "Record deleted."
+      ;;
+    e)
+      nl "$file"
+      echo -n "Enter record number to modify: "
+      read num
+      echo -n "Enter new name,phone,address: "
+      read record
+      sed "${num}s/.*/$record/" "$file" > temp && mv temp "$file"
+      echo "Record modified."
+      ;;
+    f)
+      echo "Bye!"
+      break
+      ;;
+    *)
+      echo "Invalid choice."
+      ;;
+  esac
+done
