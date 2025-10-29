@@ -1,0 +1,52 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int isPresent(int pages[], int size, int page) {
+    for (int i = 0; i < size; i++) {
+        if (pages[i] == page)
+            return 1;
+    }
+    return 0;
+}
+
+int calculatePageFaults(int pages[], int n, int capacity) {
+    int *frames = (int *)malloc(capacity * sizeof(int));
+    int pageFaults = 0;
+    int front = 0;   
+    int size = 0;   
+    for (int i = 0; i < n; i++) {
+        if (!isPresent(frames, size, pages[i])) {
+            if (size < capacity) {
+                frames[size++] = pages[i];
+            } else {
+                frames[front] = pages[i];
+                front = (front + 1) % capacity;
+            }
+            pageFaults++;
+        }
+    }
+
+    free(frames);
+    return pageFaults;
+}
+
+int main() {
+    int n, capacity;
+    printf("Enter no of pages: ");
+    scanf("%d", &n);
+
+    int *pages = (int *)malloc(n * sizeof(int));
+    printf("Enter pages: ");
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &pages[i]);
+    }
+
+    printf("Enter capacity: ");
+    scanf("%d", &capacity);
+
+    int faults = calculatePageFaults(pages, n, capacity);
+    printf("Total page faults: %d\n", faults);
+
+    free(pages);
+    return 0;
+}
