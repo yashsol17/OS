@@ -1,0 +1,167 @@
+// round robin scheduling algorithm
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct process {
+    int BT;
+    int AT;
+    int WT;
+    int TAT;
+    int CT;
+};
+
+int main(void) {
+    int n;
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+
+    int iterator = 0;
+    struct process processlist[n];
+
+    for (int i = 0; i < n; i++) {
+        printf("Enter the Burst Time of the process: ");
+        scanf("%d", &processlist[i].BT);
+        printf("Enter the Arrival Time of the process: ");
+        scanf("%d", &processlist[i].AT);
+        processlist[i].WT = 0;
+        processlist[i].TAT = 0;
+        processlist[i].CT = 0;
+    }
+
+    int totalTime = 0;
+    for (int i = 0; i < n; i++) {
+        totalTime += processlist[i].BT;
+    }
+
+    struct process processlisttemp[n];
+    for (int i = 0; i < n; i++) {
+        processlisttemp[i] = processlist[i];
+    }
+
+    while (iterator < totalTime) {
+        for (int i = 0; i < n; i++) {
+            if (processlisttemp[i].AT <= iterator) {
+                if (processlisttemp[i].BT >= 2) {
+                    processlisttemp[i].BT -= 2;
+                    iterator += 2;
+                    if (processlisttemp[i].BT == 0) {
+                        processlist[i].CT = iterator;
+                    }
+                } else if (processlisttemp[i].BT == 1) {
+                    processlisttemp[i].BT -= 1;
+                    iterator++;
+                    if (processlisttemp[i].BT == 0) {
+                        processlist[i].CT = iterator;
+                    }
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < n; i++) {
+        processlist[i].TAT = processlist[i].CT - processlist[i].AT;
+        processlist[i].WT = processlist[i].TAT - processlist[i].BT;
+    }
+
+    printf("PID   BT   AT   CT   TAT   WT\n");
+    for (int i = 0; i < n; i++) {
+        printf("P%d    %d    %d    %d    %d    %d\n",
+               i + 1,
+               processlist[i].BT,
+               processlist[i].AT,
+               processlist[i].CT,
+               processlist[i].TAT,
+               processlist[i].WT);
+    }
+
+    return 0;
+}
+
+// shortest job first scheduling algorithm (preemptive)
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+struct process {
+    int BT;
+    int AT;
+    int WT;
+    int TAT;
+    int CT;
+    int RT;
+    int done;
+};
+
+int main(void) {
+    int n;
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+
+    struct process processlist[n];
+    int completed = 0, iterator = 0;
+
+    for (int i = 0; i < n; i++) {
+        printf("Enter the Burst Time of process P%d: ", i + 1);
+        scanf("%d", &processlist[i].BT);
+        printf("Enter the Arrival Time of process P%d: ", i + 1);
+        scanf("%d", &processlist[i].AT);
+
+        processlist[i].WT = 0;
+        processlist[i].TAT = 0;
+        processlist[i].CT = 0;
+        processlist[i].RT = processlist[i].BT;
+        processlist[i].done = 0;
+    }
+
+    while (completed < n) {
+        int idx = -1;
+        int minRT = INT_MAX;
+
+        for (int i = 0; i < n; i++) {
+            if (processlist[i].AT <= iterator && processlist[i].done == 0) {
+                if (processlist[i].RT < minRT) {
+                    minRT = processlist[i].RT;
+                    idx = i;
+                } else if (processlist[i].RT == minRT) {
+                    if (processlist[i].AT < processlist[idx].AT) {
+                        idx = i;
+                    }
+                }
+            }
+        }
+
+        if (idx != -1) {
+            processlist[idx].RT--;
+            iterator++;
+
+            if (processlist[idx].RT == 0) {
+                processlist[idx].CT = iterator;
+                processlist[idx].done = 1;
+                completed++;
+            }
+        } else {
+            iterator++;
+        }
+    }
+
+    for (int i = 0; i < n; i++) {
+        processlist[i].TAT = processlist[i].CT - processlist[i].AT;
+        processlist[i].WT = processlist[i].TAT - processlist[i].BT;
+    }
+
+    printf("\nPID   BT   AT   CT   TAT   WT\n");
+    for (int i = 0; i < n; i++) {
+        printf("P%d    %d    %d    %d    %d    %d\n",
+               i + 1,
+               processlist[i].BT,
+               processlist[i].AT,
+               processlist[i].CT,
+               processlist[i].TAT,
+               processlist[i].WT);
+    }
+
+    return 0;
+}
