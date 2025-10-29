@@ -1,0 +1,25 @@
+echo " good morning"
+ls
+read user
+whoami
+echo "hello!, $user"
+cat > sample.txt
+cat sample.txt
+touch data.txt
+ls
+test -f data.txt && echo"data.txtx is present"
+x=15
+y=4
+if [ $x -gt $y ]; then echo"$x is greater than $y"; fi
+for num in 5 10 15 ; do echo "value $num"; done
+count 1
+while [ $count -le 4 ]; do echo "Step: $count"; count=$((count+1)); done
+echo "apple banana mango" > fruits.txt
+grep "banana" fruits.txt
+sed 's/banana/kiwi/' fruits.txt
+wc fruits.txt
+ps
+mkdir newfolder
+sort fruits.txt
+rm fruits.txt
+tree
